@@ -1,34 +1,22 @@
 package function;
 
+import constants.AppConstants;
 import main.GUI;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * Class for text search and replace
+ */
 public class FunctionSearch {
     private final GUI gui;
     private JDialog searchDialog;
     private JTextField searchField, replaceField;
-    private int lastFoundIndex = 0;
-
-    // CONSTANTS
-    private static final int DIALOG_WIDTH = 400;
-    private static final int DIALOG_HEIGHT = 220;
-    private static final int GRID_ROWS = 4;
-    private static final int GRID_COLS = 2;
-    private static final int GRID_HGAP = 5;
-    private static final int GRID_VGAP = 5;
-
-    private static final String FIND_LABEL = "Find:";
-    private static final String REPLACE_LABEL = "Replace with:";
-    private static final String FIND_BUTTON_TEXT = "Find further";
-    private static final String REPLACE_BUTTON_TEXT = "Replace";
-    private static final String REPLACE_ALL_BUTTON_TEXT = "Replace all";
-    private static final String CANCEL_BUTTON_TEXT = "Cancel";
-
-    private static final String TEXT_NOT_FOUND_MESSAGE = "Text was not found!";
-    private static final String REPLACEMENT_COMPLETE_MESSAGE = "Replacement is complete!";
+    private int lastFoundIndex;
 
     public FunctionSearch(GUI gui) {
+        this.lastFoundIndex = 0;
+
         this.gui = gui;
     }
 
@@ -40,38 +28,48 @@ public class FunctionSearch {
         searchDialog.setVisible(true);
     }
 
+    /**
+     * Creates the dialog window with available actions
+     */
     private void createSearchDialog() {
 
         searchDialog = new JDialog(gui.getWindow(), "Find & replace", true);
-        searchDialog.setSize(DIALOG_WIDTH, DIALOG_HEIGHT);
+        searchDialog.setSize(AppConstants.Dimensions.SEARCH_DIALOG_WIDTH, AppConstants.Dimensions.SEARCH_DIALOG_HEIGHT);
         searchDialog.setLocationRelativeTo(gui.getWindow());
-        searchDialog.setLayout(new GridLayout(GRID_ROWS, GRID_COLS, GRID_HGAP, GRID_VGAP));
+        searchDialog.setLayout(new GridLayout(
+                AppConstants.Dimensions.GRID_ROWS,
+                AppConstants.Dimensions.GRID_COLS,
+                AppConstants.Dimensions.GRID_HGAP,
+                AppConstants.Dimensions.GRID_VGAP));
 
-        searchDialog.add(new JLabel(FIND_LABEL));
+        searchDialog.add(new JLabel(AppConstants.SearchDialog.FIND_LABEL));
         searchField = new JTextField();
         searchDialog.add(searchField);
 
-        searchDialog.add(new JLabel(REPLACE_LABEL));
+        searchDialog.add(new JLabel(AppConstants.SearchDialog.REPLACE_LABEL));
         replaceField = new JTextField();
         searchDialog.add(replaceField);
 
-        JButton findButton = new JButton(FIND_BUTTON_TEXT);
+        JButton findButton = new JButton(AppConstants.SearchDialog.FIND_BUTTON);
         findButton.addActionListener(e -> findNext());
         searchDialog.add(findButton);
 
-        JButton replaceButton = new JButton(REPLACE_BUTTON_TEXT);
+        JButton replaceButton = new JButton(AppConstants.SearchDialog.REPLACE_BUTTON);
         replaceButton.addActionListener(e -> replace());
         searchDialog.add(replaceButton);
 
-        JButton replaceAllButton = new JButton(REPLACE_ALL_BUTTON_TEXT);
+        JButton replaceAllButton = new JButton(AppConstants.SearchDialog.REPLACE_ALL_BUTTON);
         replaceAllButton.addActionListener(e -> replaceAll());
         searchDialog.add(replaceAllButton);
 
-        JButton cancelButton = new JButton(CANCEL_BUTTON_TEXT);
+        JButton cancelButton = new JButton(AppConstants.SearchDialog.CANCEL_BUTTON);
         cancelButton.addActionListener(e -> searchDialog.setVisible(false));
         searchDialog.add(cancelButton);
     }
 
+    /**
+     * Method to find the next occurrence of text in the file
+     */
     private void findNext() {
         String searchText = searchField.getText();
         String content = gui.getTextArea().getText();
@@ -84,7 +82,7 @@ public class FunctionSearch {
             index = content.indexOf(searchText);
 
             if(index == -1) {
-                JOptionPane.showMessageDialog(searchDialog, TEXT_NOT_FOUND_MESSAGE);
+                JOptionPane.showMessageDialog(searchDialog, AppConstants.SearchDialog.TEXT_NOT_FOUND);
                 return;
             }
         }
@@ -95,6 +93,9 @@ public class FunctionSearch {
         lastFoundIndex = index + 1;
     }
 
+    /**
+     * Method to replace the selected text
+     */
     private void replace() {
         String selectedText = gui.getTextArea().getSelectedText();
 
@@ -104,6 +105,9 @@ public class FunctionSearch {
         findNext();
     }
 
+    /**
+     * Method to replace all found text
+     */
     private void replaceAll() {
         String content = gui.getTextArea().getText();
         String searchText = searchField.getText();
@@ -114,6 +118,6 @@ public class FunctionSearch {
         String newContent = content.replaceAll(searchText, replaceText);
         gui.getTextArea().setText(newContent);
 
-        JOptionPane.showMessageDialog(searchDialog, REPLACEMENT_COMPLETE_MESSAGE);
+        JOptionPane.showMessageDialog(searchDialog, AppConstants.SearchDialog.REPLACEMENT_COMPLETE);
     }
 }

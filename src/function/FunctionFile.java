@@ -1,5 +1,6 @@
 package function;
 
+import constants.AppConstants;
 import main.GUI;
 
 import javax.swing.*;
@@ -8,19 +9,15 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 
+/**
+ * Class for working with files.
+ */
 public class FunctionFile {
     private final GUI gui;
     private String fileName;     // File name
     private String fileAddress;  // File address
 
-    // CONSTANTS FOR MESSAGES
-    private static final String FILE_NOT_OPENED_ERROR = "File not Opened!";
-    private static final String FILE_NOT_SAVED_ERROR = "File not Saved!";
-    private static final String FILE_NOT_SAVED_AS_ERROR = "File not Saved As!";
-    private static final String SAVE_SUCCESS_MESSAGE = "Current result was successfully saved!";
-    private static final String NEW_FILE_TITLE = "New File";
-
-    // GETTERS & SETTERS
+    // Getters & setters
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
@@ -38,24 +35,35 @@ public class FunctionFile {
         this.gui = gui;
     }
 
+    /**
+     * Creating a new file
+     */
     public void newFile() {
         gui.getTextArea().setText("");
-        gui.getWindow().setTitle(NEW_FILE_TITLE);
+        gui.getWindow().setTitle(AppConstants.Messages.NEW_FILE_TITLE);
 
         // Clear the file name and address
         setFileName(null);
         setFileAddress(null);
     }
+
+    /**
+     * Opening an existing file
+     */
     public void openFile() {
-        FileDialog fDialog = new FileDialog(gui.getWindow(), "Select File", FileDialog.LOAD);
-        fDialog.setVisible(true);
+        FileDialog fileDialog = new FileDialog(gui.getWindow(), "Select File", FileDialog.LOAD);
+        fileDialog.setVisible(true);
 
-        if(fDialog.getFile() != null) {
-            setFileName(fDialog.getFile());
-            setFileAddress(fDialog.getDirectory());
+        String selectedFileName = fileDialog.getFile();
+        String selectedDirectory = fileDialog.getDirectory();
 
-            gui.getWindow().setTitle(getFileName());
+        if(selectedFileName == null) {
+            return;  // User canceled selection
         }
+
+        setFileName(selectedFileName);
+        setFileAddress(selectedDirectory);
+        gui.getWindow().setTitle(getFileName());
 
         try {
             BufferedReader bReader = new BufferedReader(new FileReader(
@@ -71,9 +79,13 @@ public class FunctionFile {
 
             bReader.close();
         } catch(Exception e) {
-            System.err.println(FILE_NOT_OPENED_ERROR);
+            System.err.println(AppConstants.Messages.FILE_NOT_OPENED);
         }
     }
+
+    /**
+     * Saving the file
+     */
     public void saveFile() {
 
         if(getFileName() == null) {
@@ -85,30 +97,43 @@ public class FunctionFile {
                 gui.getWindow().setTitle(getFileName());
                 fWriter.close();
 
-                JOptionPane.showMessageDialog(gui.getTextArea(), SAVE_SUCCESS_MESSAGE);
+                JOptionPane.showMessageDialog(gui.getTextArea(), AppConstants.Messages.SAVE_SUCCESS);
             } catch(Exception e) {
-                System.err.println(FILE_NOT_SAVED_ERROR);
+                System.err.println(AppConstants.Messages.FILE_NOT_SAVED);
             }
         }
     }
-    public void saveAsFile() {
-        FileDialog fDialog = new FileDialog(gui.getWindow(), GUI.SAVE_AS_TEXT, FileDialog.SAVE);
-        fDialog.setVisible(true);
 
-        if(fDialog.getFile() != null) {
-            setFileName(fDialog.getFile());
-            setFileAddress(fDialog.getDirectory());
-            gui.getWindow().setTitle(getFileName());
+    /**
+     * Saving the file with a new name
+     */
+    public void saveAsFile() {
+        FileDialog fileDialog = new FileDialog(gui.getWindow(), AppConstants.MenuText.SAVE_AS, FileDialog.SAVE);
+        fileDialog.setVisible(true);
+
+        String selectedFileName = fileDialog.getFile();
+        String selectedDirectory = fileDialog.getDirectory();
+
+        if(selectedFileName == null) {
+            return;  // User canceled saving
         }
+
+        setFileName(selectedFileName);
+        setFileAddress(selectedDirectory);
+        gui.getWindow().setTitle(getFileName());
 
         try {
             FileWriter fWriter = new FileWriter(getFileAddress() + getFileName());
             fWriter.write(gui.getTextArea().getText());
             fWriter.close();
         } catch(Exception e) {
-            System.err.println(FILE_NOT_SAVED_AS_ERROR);
+            System.err.println(AppConstants.Messages.FILE_NOT_SAVED_AS);
         }
     }
+
+    /**
+     * Exit the app
+     */
     public void exit() {
         System.exit(0);
     }
