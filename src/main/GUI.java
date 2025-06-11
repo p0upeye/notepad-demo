@@ -8,40 +8,71 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class GUI implements ActionListener {
-    public JFrame window;
+    private JFrame window;
 
     // TEXT AREA
-    public JTextArea textArea;
-    JScrollPane scrollPane;
-    public boolean wordWrapOn = false;
+    private JTextArea textArea;
+    private JScrollPane scrollPane;
+    private boolean wordWrapOn = false;
 
     // TOP MENU BAR
-    JMenuBar menuBar;
-    JMenu menuFile, menuEdit, menuFormat, menuColor;
+    private JMenuBar menuBar;
+    private JMenu menuFile, menuEdit, menuFormat, menuColor;
     // FILE MENU
-    JMenuItem iNew, iOpen, iSave, iSaveAs, iExit;
+    private JMenuItem iNew, iOpen, iSave, iSaveAs, iExit;
     // EDIT MENU
-    JMenuItem iSearch, iUndo, iRedo;
+    private JMenuItem iSearch, iUndo, iRedo;
     // FORMAT MENU
-    public JMenuItem iWrap, iFontArial, iFontMaruMonica, iFontPlaywrite,
-                     iFontSize12, iFontSize16, iFontSize22, iFontSize30;
-    JMenu menuFont, menuFontSize;
+    private JMenuItem iWrap, iFontArial, iFontMaruMonica, iFontPlaywrite,
+            iFontSize12, iFontSize16, iFontSize22, iFontSize30;
+    private JMenu menuFont, menuFontSize;
     // COLOR MENU
-    JMenuItem iColor1, iColor2, iColor3;
+    private JMenuItem iColor1, iColor2, iColor3;
 
     // CLASSES
-    Function_File fFile     = new Function_File(this);
-    Function_Format fFormat = new Function_Format(this);
-    Function_Color fColor   = new Function_Color(this);
-    Function_Edit fEdit     = new Function_Edit(this);
-    Function_Search fSearch = new Function_Search(this);
-    KeyHandler keyH         = new KeyHandler(this);
+    private final FunctionFile fFile = new FunctionFile(this);
+    private final FunctionFormat fFormat = new FunctionFormat(this);
+    private final FunctionColor fColor = new FunctionColor(this);
+    private final FunctionEdit fEdit = new FunctionEdit(this);
+    private final FunctionSearch fSearch = new FunctionSearch(this);
+    private final KeyHandler keyH = new KeyHandler(this);
+    private final UndoManager uManager = new UndoManager();
 
-    public UndoManager uManager = new UndoManager();
-
+    // CONSTANTS
     public static final int DEFAULT_FONT_SIZE = 16;
     public static final int WINDOW_WIDTH  = 800;
     public static final int WINDOW_HEIGHT = 600;
+
+    private static final String NEW_TEXT = "New";
+    private static final String OPEN_TEXT = "Open";
+    private static final String SAVE_TEXT = "Save";
+    public static final String SAVE_AS_TEXT = "Save As";
+    private static final String EXIT_TEXT = "Exit";
+    private static final String FIND_TEXT = "Find";
+    private static final String UNDO_TEXT = "↩ Undo";
+    private static final String REDO_TEXT = "↪ Redo";
+    public static final String WORD_WRAP_ON_TEXT = "Word Wrap: On";
+    public static final String WORD_WRAP_OFF_TEXT = "Word Wrap: Off";
+    public static final String ARIAL_TEXT = "Arial";
+    public static final String MARU_MONICA_TEXT = "Maru Monica";
+    public static final String PLAYWRITE_TEXT = "Playwrite";
+    public static final String WHITE_TEXT = "White";
+    public static final String GREEN_TEXT = "Green";
+    public static final String BLACK_TEXT = "Black";
+
+    private static final int FONT_SIZE_12 = 12;
+    private static final int FONT_SIZE_16 = 16;
+    private static final int FONT_SIZE_22 = 22;
+    private static final int FONT_SIZE_30 = 30;
+
+    private static final String SIZE_12_COMMAND = "Size12";
+    private static final String SIZE_16_COMMAND = "Size16";
+    private static final String SIZE_22_COMMAND = "Size22";
+    private static final String SIZE_30_COMMAND = "Size30";
+    private static final String SEARCH_COMMAND = "Search";
+    private static final String UNDO_COMMAND = "Undo";
+    private static final String REDO_COMMAND = "Redo";
+    private static final String WORD_WRAP_COMMAND = "Word Wrap";
 
     public GUI() {
         createWindow();
@@ -53,15 +84,27 @@ public class GUI implements ActionListener {
         createColorMenu();
 
         // DEFAULT PARAMETERS
-        fFormat.setSelectedFont("Arial");
+        fFormat.setSelectedFont(ARIAL_TEXT);
         fFormat.createFont(DEFAULT_FONT_SIZE);
         fFormat.wordWrap();
-        fColor.changeColor("White");
+        fColor.changeColor(WHITE_TEXT);
 
         window.setVisible(true);
     }
 
-    /// WINDOW
+    // GETTERS & SETTERS
+    public JFrame getWindow() { return window; }
+    public JTextArea getTextArea() { return textArea; }
+    public boolean isWordWrapOn() { return wordWrapOn; }
+    public void setWordWrapOn(boolean wordWrapOn) { this.wordWrapOn = wordWrapOn; }
+    public JMenuItem getItemWrap() { return iWrap; }
+    public UndoManager getUndoManager() { return uManager; }
+    public JMenu getMenuFile() { return menuFile; }
+    public FunctionFile getFunctionFile() { return fFile; }
+    public FunctionEdit getFunctionEdit() { return fEdit; }
+    public FunctionSearch getFunctionSearch() { return fSearch; }
+
+    // WINDOW
     public void createWindow() {
         window = new JFrame("Notepad");
 
@@ -72,7 +115,7 @@ public class GUI implements ActionListener {
         window.setLocationRelativeTo(null);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
-    /// AREA WITH TEXT
+    // AREA WITH TEXT
     public void createTextArea() {
         textArea = new JTextArea();
 
@@ -92,7 +135,7 @@ public class GUI implements ActionListener {
         ;
         window.add(scrollPane);
     }
-    /// MENU BAR
+    // MENU BAR
     public void createMenuBar() {
 
         menuBar = new JMenuBar();
@@ -110,119 +153,119 @@ public class GUI implements ActionListener {
         menuColor = new JMenu("Color");
         menuBar.add(menuColor);
     }
-    /// TOOLBAR: File
+    // TOOLBAR: File
     public void createFileMenu() {
 
-        iNew = new JMenuItem("New");
+        iNew = new JMenuItem(NEW_TEXT);
         iNew.addActionListener(this);
-        iNew.setActionCommand("New");
+        iNew.setActionCommand(NEW_TEXT);
         menuFile.add(iNew);
 
-        iOpen = new JMenuItem("Open");
+        iOpen = new JMenuItem(OPEN_TEXT);
         iOpen.addActionListener(this);
-        iOpen.setActionCommand("Open");
+        iOpen.setActionCommand(OPEN_TEXT);
         menuFile.add(iOpen);
 
-        iSave = new JMenuItem("Save");
+        iSave = new JMenuItem(SAVE_TEXT);
         iSave.addActionListener(this);
-        iSave.setActionCommand("Save");
+        iSave.setActionCommand(SAVE_TEXT);
         menuFile.add(iSave);
 
-        iSaveAs = new JMenuItem("Save As");
+        iSaveAs = new JMenuItem(SAVE_AS_TEXT);
         iSaveAs.addActionListener(this);
-        iSaveAs.setActionCommand("Save As");
+        iSaveAs.setActionCommand(SAVE_AS_TEXT);
         menuFile.add(iSaveAs);
 
-        iExit = new JMenuItem("Exit");
+        iExit = new JMenuItem(EXIT_TEXT);
         iExit.addActionListener(this);
-        iExit.setActionCommand("Exit");
+        iExit.setActionCommand(EXIT_TEXT);
         menuFile.add(iExit);
     }
-    /// TOOLBAR: Edit
+    // TOOLBAR: Edit
     public void createEditMenu() {
 
-        iSearch = new JMenuItem("Find");
+        iSearch = new JMenuItem(FIND_TEXT);
         iSearch.addActionListener(this);
-        iSearch.setActionCommand("Search");
+        iSearch.setActionCommand(SEARCH_COMMAND);
         menuEdit.add(iSearch);
 
-        iUndo = new JMenuItem("↩ Undo");
+        iUndo = new JMenuItem(UNDO_TEXT);
         iUndo.addActionListener(this);
-        iUndo.setActionCommand("Undo");
+        iUndo.setActionCommand(UNDO_COMMAND);
         menuEdit.add(iUndo);
 
-        iRedo = new JMenuItem("↪ Redo");
+        iRedo = new JMenuItem(REDO_TEXT);
         iRedo.addActionListener(this);
-        iRedo.setActionCommand("Redo");
+        iRedo.setActionCommand(REDO_COMMAND);
         menuEdit.add(iRedo);
     }
-    /// TOOLBAR: Format
+    // TOOLBAR: Format
     public void createFormatMenu() {
 
-        iWrap = new JMenuItem("Word Wrap: Off");
+        iWrap = new JMenuItem(WORD_WRAP_OFF_TEXT);
         iWrap.addActionListener(this);
-        iWrap.setActionCommand("Word Wrap");
+        iWrap.setActionCommand(WORD_WRAP_COMMAND);
         menuFormat.add(iWrap);
 
         // FONT
         menuFont = new JMenu("Font");
         menuFormat.add(menuFont);
 
-        iFontArial = new JMenuItem("Arial");
+        iFontArial = new JMenuItem(ARIAL_TEXT);
         iFontArial.addActionListener(this);
-        iFontArial.setActionCommand("Arial");
+        iFontArial.setActionCommand(ARIAL_TEXT);
         menuFont.add(iFontArial);
 
-        iFontMaruMonica = new JMenuItem("Maru Monica");
+        iFontMaruMonica = new JMenuItem(MARU_MONICA_TEXT);
         iFontMaruMonica.addActionListener(this);
-        iFontMaruMonica.setActionCommand("Maru Monica");
+        iFontMaruMonica.setActionCommand(MARU_MONICA_TEXT);
         menuFont.add(iFontMaruMonica);
 
-        iFontPlaywrite = new JMenuItem("Playwrite");
+        iFontPlaywrite = new JMenuItem(PLAYWRITE_TEXT);
         iFontPlaywrite.addActionListener(this);
-        iFontPlaywrite.setActionCommand("Playwrite");
+        iFontPlaywrite.setActionCommand(PLAYWRITE_TEXT);
         menuFont.add(iFontPlaywrite);
 
         // FONT SIZE
         menuFontSize = new JMenu("Font Size");
         menuFormat.add(menuFontSize);
 
-        iFontSize12 = new JMenuItem("12");
+        iFontSize12 = new JMenuItem(String.valueOf(FONT_SIZE_12));
         iFontSize12.addActionListener(this);
-        iFontSize12.setActionCommand("Size12");
+        iFontSize12.setActionCommand(SIZE_12_COMMAND);
         menuFontSize.add(iFontSize12);
 
-        iFontSize16 = new JMenuItem("16");
+        iFontSize16 = new JMenuItem(String.valueOf(FONT_SIZE_16));
         iFontSize16.addActionListener(this);
-        iFontSize16.setActionCommand("Size16");
+        iFontSize16.setActionCommand(SIZE_16_COMMAND);
         menuFontSize.add(iFontSize16);
 
-        iFontSize22 = new JMenuItem("22");
+        iFontSize22 = new JMenuItem(String.valueOf(FONT_SIZE_22));
         iFontSize22.addActionListener(this);
-        iFontSize22.setActionCommand("Size22");
+        iFontSize22.setActionCommand(SIZE_22_COMMAND);
         menuFontSize.add(iFontSize22);
 
-        iFontSize30 = new JMenuItem("30");
+        iFontSize30 = new JMenuItem(String.valueOf(FONT_SIZE_30));
         iFontSize30.addActionListener(this);
-        iFontSize30.setActionCommand("Size30");
+        iFontSize30.setActionCommand(SIZE_30_COMMAND);
         menuFontSize.add(iFontSize30);
     }
-    /// TOOLBAR: Color
+    // TOOLBAR: Color
     public void createColorMenu() {
 
-        iColor1 = new JMenuItem("White");
+        iColor1 = new JMenuItem(WHITE_TEXT);
         iColor1.addActionListener(this);
-        iColor1.setActionCommand("White");
+        iColor1.setActionCommand(WHITE_TEXT);
         menuColor.add(iColor1);
 
-        iColor2 = new JMenuItem("Green");
+        iColor2 = new JMenuItem(GREEN_TEXT);
         iColor2.addActionListener(this);
-        iColor2.setActionCommand("Green");
+        iColor2.setActionCommand(GREEN_TEXT);
         menuColor.add(iColor2);
 
-        iColor3 = new JMenuItem("Black");
+        iColor3 = new JMenuItem(BLACK_TEXT);
         iColor3.addActionListener(this);
-        iColor3.setActionCommand("Black");
+        iColor3.setActionCommand(BLACK_TEXT);
         menuColor.add(iColor3);
     }
 
@@ -232,25 +275,25 @@ public class GUI implements ActionListener {
 
         switch(command) {
             // FILE
-            case "New":  fFile.newFile();  break;
-            case "Open":  fFile.openFile();  break;
-            case "Save":  fFile.saveFile();  break;
-            case "Save As":  fFile.saveAsFile();  break;
-            case "Exit":  fFile.exit();  break;
+            case NEW_TEXT:  fFile.newFile();  break;
+            case OPEN_TEXT:  fFile.openFile();  break;
+            case SAVE_TEXT:  fFile.saveFile();  break;
+            case SAVE_AS_TEXT:  fFile.saveAsFile();  break;
+            case EXIT_TEXT:  fFile.exit();  break;
             // EDIT
-            case "Search":  fSearch.showSearchDialog();  break;
-            case "Undo":  fEdit.undo();  break;
-            case "Redo":  fEdit.redo();  break;
+            case SEARCH_COMMAND:  fSearch.showSearchDialog();  break;
+            case UNDO_COMMAND:  fEdit.undo();  break;
+            case REDO_COMMAND:  fEdit.redo();  break;
             // FORMAT
-            case "Word Wrap":  fFormat.wordWrap();  break;
-            case "Arial", "Playwrite", "Maru Monica":  fFormat.setFont(command);  break;
-            case "Size12":  fFormat.createFont(12);  break;
-            case "Size16":  fFormat.createFont(16);  break;
-            case "Size22":  fFormat.createFont(22);  break;
-            case "Size30":  fFormat.createFont(30);  break;
-            case "White":  fColor.changeColor("White");  break;
-            case "Green":  fColor.changeColor("Green");  break;
-            case "Black":  fColor.changeColor("Black");  break;
+            case WORD_WRAP_COMMAND:  fFormat.wordWrap();  break;
+            case ARIAL_TEXT, PLAYWRITE_TEXT, MARU_MONICA_TEXT:  fFormat.setFont(command);  break;
+            case SIZE_12_COMMAND:  fFormat.createFont(FONT_SIZE_12);  break;
+            case SIZE_16_COMMAND:  fFormat.createFont(FONT_SIZE_16);  break;
+            case SIZE_22_COMMAND:  fFormat.createFont(FONT_SIZE_22);  break;
+            case SIZE_30_COMMAND:  fFormat.createFont(FONT_SIZE_30);  break;
+            case WHITE_TEXT:  fColor.changeColor(WHITE_TEXT);  break;
+            case GREEN_TEXT:  fColor.changeColor(GREEN_TEXT);  break;
+            case BLACK_TEXT:  fColor.changeColor(BLACK_TEXT);  break;
             // ...
 
             default:  System.out.println("Invalid command: " + command);  break;

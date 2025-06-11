@@ -4,7 +4,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 public class KeyHandler implements KeyListener {
-    GUI gui;
+    private final GUI gui;
 
     public KeyHandler(GUI gui) {
         this.gui = gui;
@@ -17,31 +17,31 @@ public class KeyHandler implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        // SAVE / SAVE AS
+        // SAVE & SAVE AS
         if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_S) {
 
-            if(e.isShiftDown() == true) {  // shift + ctrl + s
-                gui.fFile.saveAsFile();
-            }else {                        // ctrl + s
-                gui.fFile.saveFile();
+            if(e.isShiftDown()) {              // shift + ctrl + s
+                gui.getFunctionFile().saveAsFile();
+            }else {                            // ctrl + s
+                gui.getFunctionFile().saveFile();
             }
         }
         // FILE MENU
         if(e.isAltDown() && e.getKeyCode() == KeyEvent.VK_F) {  // alt + f
-            gui.menuFile.doClick();
+            gui.getMenuFile().doClick();
         }
         // UNDO & REDO
         if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Z) {
 
-            if(e.isShiftDown() == true) {  // shift + ctrl + z
-                gui.fEdit.redo();
-            }else {                        // ctrl + z
-                gui.fEdit.undo();
+            if(e.isShiftDown()) {              // shift + ctrl + z
+                gui.getFunctionEdit().redo();
+            }else {                            // ctrl + z
+                gui.getFunctionEdit().undo();
             }
         }
         // FIND & REPLACE
         if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_F) {  // ctrl + f
-            gui.fSearch.showSearchDialog();
+            gui.getFunctionSearch().showSearchDialog();
         }
     }
 }

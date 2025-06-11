@@ -8,11 +8,19 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 
-public class Function_File {
-    GUI gui;
+public class FunctionFile {
+    private final GUI gui;
     private String fileName;     // File name
     private String fileAddress;  // File address
 
+    // CONSTANTS FOR MESSAGES
+    private static final String FILE_NOT_OPENED_ERROR = "File not Opened!";
+    private static final String FILE_NOT_SAVED_ERROR = "File not Saved!";
+    private static final String FILE_NOT_SAVED_AS_ERROR = "File not Saved As!";
+    private static final String SAVE_SUCCESS_MESSAGE = "Current result was successfully saved!";
+    private static final String NEW_FILE_TITLE = "New File";
+
+    // GETTERS & SETTERS
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
@@ -26,27 +34,27 @@ public class Function_File {
         return fileAddress;
     }
 
-    public Function_File(GUI gui) {
+    public FunctionFile(GUI gui) {
         this.gui = gui;
     }
 
     public void newFile() {
-        gui.textArea.setText("");
-        gui.window.setTitle("New File");
+        gui.getTextArea().setText("");
+        gui.getWindow().setTitle(NEW_FILE_TITLE);
 
         // Clear the file name and address
         setFileName(null);
         setFileAddress(null);
     }
     public void openFile() {
-        FileDialog fDialog = new FileDialog(gui.window, "Select File", FileDialog.LOAD);
+        FileDialog fDialog = new FileDialog(gui.getWindow(), "Select File", FileDialog.LOAD);
         fDialog.setVisible(true);
 
         if(fDialog.getFile() != null) {
             setFileName(fDialog.getFile());
             setFileAddress(fDialog.getDirectory());
 
-            gui.window.setTitle(getFileName());
+            gui.getWindow().setTitle(getFileName());
         }
 
         try {
@@ -54,16 +62,16 @@ public class Function_File {
                     getFileAddress() + getFileName()));
 
             // Clear text
-            gui.textArea.setText("");
+            gui.getTextArea().setText("");
 
             String line;
             while((line = bReader.readLine()) != null) {
-                gui.textArea.append(line + "\n");
+                gui.getTextArea().append(line + "\n");
             }
 
             bReader.close();
         } catch(Exception e) {
-            System.err.println("File not Opened!");
+            System.err.println(FILE_NOT_OPENED_ERROR);
         }
     }
     public void saveFile() {
@@ -73,32 +81,32 @@ public class Function_File {
         }else {
             try {
                 FileWriter fWriter = new FileWriter(getFileAddress() + getFileName());
-                fWriter.write(gui.textArea.getText());
-                gui.window.setTitle(getFileName());
+                fWriter.write(gui.getTextArea().getText());
+                gui.getWindow().setTitle(getFileName());
                 fWriter.close();
 
-                JOptionPane.showMessageDialog(gui.textArea, "Current result was successfully saved!");
+                JOptionPane.showMessageDialog(gui.getTextArea(), SAVE_SUCCESS_MESSAGE);
             } catch(Exception e) {
-                System.err.println("File not Saved!");
+                System.err.println(FILE_NOT_SAVED_ERROR);
             }
         }
     }
     public void saveAsFile() {
-        FileDialog fDialog = new FileDialog(gui.window, "Save As", FileDialog.SAVE);
+        FileDialog fDialog = new FileDialog(gui.getWindow(), GUI.SAVE_AS_TEXT, FileDialog.SAVE);
         fDialog.setVisible(true);
 
         if(fDialog.getFile() != null) {
             setFileName(fDialog.getFile());
             setFileAddress(fDialog.getDirectory());
-            gui.window.setTitle(getFileName());
+            gui.getWindow().setTitle(getFileName());
         }
 
         try {
             FileWriter fWriter = new FileWriter(getFileAddress() + getFileName());
-            fWriter.write(gui.textArea.getText());
+            fWriter.write(gui.getTextArea().getText());
             fWriter.close();
         } catch(Exception e) {
-            System.err.println("File not Saved As!");
+            System.err.println(FILE_NOT_SAVED_AS_ERROR);
         }
     }
     public void exit() {
